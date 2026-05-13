@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(Get-Item \"C:\\\\Users\\\\rahul\\\\Downloads\\\\Vendr_Presentation_v2.pptx\"\\).Length / 1KB)"
+    ]
+  }
+}
