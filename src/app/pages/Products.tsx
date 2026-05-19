@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
+import { motion } from 'framer-motion';
 import { products } from '../data/products';
 import { ProductCard } from '../components/ProductCard';
-import { useCountry } from '../context/CountryContext';
-import { Globe, Grid3X3, LayoutList, ArrowUpDown, Star } from 'lucide-react';
+import { Globe, Grid3X3, LayoutList, ArrowUpDown, Star, X } from 'lucide-react';
 
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating' | 'name';
 
@@ -12,18 +12,22 @@ export function Products() {
   const [selectedLocalCountry, setSelectedLocalCountry] = useState<string>('All');
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const { selectedCountry: globalCountry } = useCountry();
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q')?.trim() ?? '';
+  const countryParam = searchParams.get('country')?.trim() ?? '';
+
   const categories = ['All', ...new Set(products.map(p => p.category))];
   const countries = ['All', ...new Set(products.map(p => p.country))].sort();
-  
-  const activeCountryFilter = globalCountry || selectedLocalCountry;
-  
+
+  const activeCountryFilter = countryParam || selectedLocalCountry;
+
   const filteredProducts = products
     .filter(p => {
       const categoryMatch = selectedCategory === 'All' || p.category === selectedCategory;
       const countryMatch = activeCountryFilter === 'All' || p.country === activeCountryFilter;
-      return categoryMatch && countryMatch;
+      const normalizedQuery = searchQuery.toLowerCase();
+      const searchMatch = !normalizedQuery || [p.name, p.description, p.category, p.country].some(v => v.toLowerCase().includes(normalizedQuery));
+      return categoryMatch && countryMatch && searchMatch;
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -36,117 +40,182 @@ export function Products() {
     });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Header */}
-      <div className="pt-20 pb-10">
+    <div className="min-h-screen" style={{ background: '#050510' }}>
+      {/* Page header */}
+      <div className="pt-16 pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-white mb-3">Products</h1>
-          <p className="text-neutral-400">
-            {products.length} items from {countries.length - 1} countries
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+          >
+            <div>
+              <div
+                className="mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest"
+                style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)', color: '#00d4ff' }}
+              >
+                <Globe className="w-3 h-3" />
+                Global Marketplace
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-2">All Products</h1>
+              <p style={{ color: 'rgba(255,255,255,0.4)' }}>
+                {products.length} items from {countries.length - 1} countries
+              </p>
+            </div>
+            {(searchQuery || countryParam) && (
+              <div className="flex gap-2 flex-wrap">
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchParams(p => { p.delete('q'); return p; })}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-all"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'white'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'; }}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Clear: "{searchQuery}"
+                  </button>
+                )}
+                {countryParam && (
+                  <button
+                    onClick={() => setSearchParams(p => { p.delete('country'); return p; })}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-all"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'white'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'; }}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Clear: {countryParam}
+                  </button>
+                )}
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-24">
         {/* Filters */}
-        <div className="mb-8 space-y-5">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-10 space-y-5"
+        >
+          {/* Category filter */}
           <div>
-            <label className="block text-sm text-neutral-400 mb-2">Category</label>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>Category</p>
             <div className="flex flex-wrap gap-2">
-                {categories.map(category => (
+              {categories.map(category => {
+                const active = selectedCategory === category;
+                return (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-                      selectedCategory === category
-                        ? 'bg-red-600 text-white'
-                        : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
-                    }`}
+                    className="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
+                    style={
+                      active
+                        ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.35)', color: '#00d4ff' }
+                        : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }
+                    }
+                    onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLElement).style.color = 'white'; } }}
+                    onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)'; } }}
                   >
                     {category}
                   </button>
-                ))}
-              </div>
+                );
+              })}
+            </div>
           </div>
 
-            {!globalCountry && (
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">Country</label>
-                <div className="flex flex-wrap gap-2">
-                  {countries.map(country => {
-                    const product = products.find(p => p.country === country);
-                    return (
-                      <button
-                        key={country}
-                        onClick={() => setSelectedLocalCountry(country)}
-                        className={`px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-1.5 ${
-                          selectedLocalCountry === country
-                            ? 'bg-red-600 text-white'
-                            : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
-                        }`}
-                      >
-                        {country === 'All' ? (
-                          <>
-                            🌍 All Countries
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-lg">{product?.flag}</span>
-                            {country}
-                          </>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+          {/* Country filter (only when no URL country param) */}
+          {!countryParam && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>Country</p>
+              <div className="flex flex-wrap gap-2">
+                {countries.map(country => {
+                  const flag = products.find(p => p.country === country)?.flag;
+                  const active = selectedLocalCountry === country;
+                  return (
+                    <button
+                      key={country}
+                      onClick={() => setSelectedLocalCountry(country)}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
+                      style={
+                        active
+                          ? { background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.35)', color: '#a78bfa' }
+                          : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }
+                      }
+                      onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLElement).style.color = 'white'; } }}
+                      onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)'; } }}
+                    >
+                      {country === 'All' ? '🌍' : <span>{flag}</span>}
+                      {country === 'All' ? 'All Countries' : country}
+                    </button>
+                  );
+                })}
               </div>
-            )}
+            </div>
+          )}
 
-            {globalCountry && (
-              <div className="px-4 py-3 bg-neutral-800 rounded-lg text-sm">
-                <span className="text-neutral-300">Showing products from </span>
-                <span className="text-white font-medium">{globalCountry}</span>
-                <span className="text-neutral-500"> (change in header)</span>
-              </div>
-            )}
-        </div>
+          {/* Active country param banner */}
+          {countryParam && (
+            <div
+              className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm"
+              style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', color: 'rgba(255,255,255,0.6)' }}
+            >
+              <Globe className="w-4 h-4" style={{ color: '#a78bfa' }} />
+              Showing products from <span className="text-white font-medium ml-1">{countryParam}</span>
+            </div>
+          )}
+        </motion.div>
 
-      {/* Products Grid */}
-      <div>
+        {/* Product grid / list */}
         {filteredProducts.length > 0 ? (
           <>
-            {/* Toolbar: count + sort + view toggle */}
+            {/* Toolbar */}
             <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-neutral-400 text-sm">{filteredProducts.length} products</p>
+              <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                {filteredProducts.length} product{filteredProducts.length === 1 ? '' : 's'}
+                {searchQuery && <span> matching "<span className="text-white">{searchQuery}</span>"</span>}
+              </p>
 
               <div className="flex items-center gap-3">
-                {/* Sort Dropdown */}
+                {/* Sort */}
                 <div className="relative">
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as SortOption)}
-                    className="appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 pr-10 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 cursor-pointer"
+                    onChange={e => setSortBy(e.target.value as SortOption)}
+                    className="appearance-none text-sm px-4 py-2.5 pr-10 rounded-xl outline-none cursor-pointer"
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.7)',
+                    }}
                   >
-                    <option value="default" className="bg-[#141414]">Default</option>
-                    <option value="price-asc" className="bg-[#141414]">Price: Low → High</option>
-                    <option value="price-desc" className="bg-[#141414]">Price: High → Low</option>
-                    <option value="rating" className="bg-[#141414]">Top Rated</option>
-                    <option value="name" className="bg-[#141414]">A → Z</option>
+                    <option value="default" style={{ background: '#050510' }}>Default</option>
+                    <option value="price-asc" style={{ background: '#050510' }}>Price: Low → High</option>
+                    <option value="price-desc" style={{ background: '#050510' }}>Price: High → Low</option>
+                    <option value="rating" style={{ background: '#050510' }}>Top Rated</option>
+                    <option value="name" style={{ background: '#050510' }}>A → Z</option>
                   </select>
-                  <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                  <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'rgba(255,255,255,0.3)' }} />
                 </div>
 
-                {/* View Toggle */}
-                <div className="flex bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                {/* View toggle */}
+                <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}>
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                    className="p-2.5 transition-all duration-200"
+                    style={viewMode === 'grid' ? { background: 'rgba(0,212,255,0.15)', color: '#00d4ff' } : { color: 'rgba(255,255,255,0.4)' }}
                   >
                     <Grid3X3 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                    className="p-2.5 transition-all duration-200"
+                    style={viewMode === 'list' ? { background: 'rgba(0,212,255,0.15)', color: '#00d4ff' } : { color: 'rgba(255,255,255,0.4)' }}
                   >
                     <LayoutList className="w-4 h-4" />
                   </button>
@@ -156,77 +225,100 @@ export function Products() {
 
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product, index) => (
-                  <div
+                {filteredProducts.map((product, i) => (
+                  <motion.div
                     key={product.id}
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${index * 60}ms` }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: i * 0.04 }}
                   >
                     <ProductCard product={product} />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredProducts.map((product, index) => (
-                  <Link
-                    to={`/products/${product.id}`}
+              <div className="space-y-3">
+                {filteredProducts.map((product, i) => (
+                  <motion.div
                     key={product.id}
-                    className="flex gap-5 bg-[#141414] rounded-xl border border-neutral-800 hover:border-neutral-700 transition-colors overflow-hidden group animate-fade-in"
-                    style={{ animationDelay: `${index * 60}ms` }}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.04 }}
                   >
-                    <div className="w-40 h-40 shrink-0 overflow-hidden">
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                    <div className="py-5 pr-6 flex flex-col justify-center">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{product.flag}</span>
-                        <span className="text-gray-500 text-sm">{product.country}</span>
-                        <span className="text-gray-600 text-sm">•</span>
-                        <span className="text-gray-500 text-sm">{product.category}</span>
+                    <Link
+                      to={`/products/${product.id}`}
+                      className="flex gap-5 rounded-2xl overflow-hidden group transition-all duration-300"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,212,255,0.25)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 0 24px rgba(0,212,255,0.07)';
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                      }}
+                    >
+                      <div className="w-36 h-36 shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
-                      <h3 className="text-white font-bold text-lg group-hover:text-red-400 transition-colors">{product.name}</h3>
-                      <p className="text-gray-400 text-sm mt-1 line-clamp-2">{product.description}</p>
-                      <div className="flex items-center gap-4 mt-3">
-                        <span className="text-white font-bold text-lg">${product.price}</span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-red-500 text-red-500" />
-                          <span className="text-gray-300 text-sm font-medium">{product.rating}</span>
-                          <span className="text-gray-500 text-sm">({product.reviews})</span>
+                      <div className="py-5 pr-6 flex flex-col justify-center flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span>{product.flag}</span>
+                          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.38)' }}>{product.country}</span>
+                          <span style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+                          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.38)' }}>{product.category}</span>
+                        </div>
+                        <h3 className="font-semibold text-white text-base mb-1 group-hover:text-cyan-300 transition-colors duration-200">{product.name}</h3>
+                        <p className="text-sm line-clamp-2 mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>{product.description}</p>
+                        <div className="flex items-center gap-4">
+                          <span className="text-base font-bold text-white">${product.price.toFixed(2)}</span>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5" style={{ color: '#f59e0b', fill: '#f59e0b' }} />
+                            <span className="text-sm font-medium text-white">{product.rating}</span>
+                            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.38)' }}>({product.reviews})</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
             )}
           </>
         ) : (
-          <div className="text-center py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-24"
+          >
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <Globe className="w-7 h-7" style={{ color: 'rgba(255,255,255,0.3)' }} />
+            </div>
             <h3 className="text-xl font-semibold text-white mb-2">No products found</h3>
-            <p className="text-neutral-400 text-sm mb-6">
-              Try different filters or reset everything.
-            </p>
+            <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.38)' }}>Try different filters or reset everything.</p>
             <div className="flex gap-3 justify-center">
               <button
-                onClick={() => {
-                  setSelectedCategory('All');
-                  setSelectedLocalCountry('All');
-                }}
-                className="bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                onClick={() => { setSelectedCategory('All'); setSelectedLocalCountry('All'); }}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200"
+                style={{ background: 'linear-gradient(135deg,#00b4d8,#7c3aed)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(0,180,216,0.3)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
               >
                 Reset filters
               </button>
               <Link
                 to="/"
-                className="bg-neutral-800 text-white px-5 py-2.5 rounded-lg hover:bg-neutral-700 transition-colors text-sm font-medium"
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
               >
                 Back to home
               </Link>
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
       </div>
     </div>
   );

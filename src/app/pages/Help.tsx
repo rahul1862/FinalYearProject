@@ -1,119 +1,117 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router';
+
+const faqs = [
+  {
+    q: 'How do I place an order?',
+    a: "Find something you like, add it to your cart, and go through checkout. If something breaks mid-way, reach out and we'll sort it manually.",
+  },
+  {
+    q: 'What payment methods are accepted?',
+    a: 'Cards (Visa, Mastercard, Amex), Apple Pay, Google Pay, and bank transfer. All the standard stuff.',
+  },
+  {
+    q: 'How long does shipping take?',
+    a: "Most orders arrive in 5–10 business days. Express is usually 2–3. International destinations can sometimes take longer — we'll tell you at checkout.",
+  },
+  {
+    q: 'Can I return something?',
+    a: "30 days, unused, tags on. Email us and we'll send a return label. No interrogation about why you changed your mind.",
+  },
+  {
+    q: 'How do I track my order?',
+    a: "We email a tracking link once your order ships. If you didn't get one, check your spam folder or drop us a message.",
+  },
+  {
+    q: 'Is my payment info safe?',
+    a: "Yes — we don't store card details ourselves. All payments go through Stripe. We never see the actual numbers.",
+  },
+  {
+    q: 'Do you ship internationally?',
+    a: "Yes. Over 150 countries. Import duties and taxes are calculated at checkout so there's no surprise bill at the door.",
+  },
+  {
+    q: 'I received something damaged. What do I do?',
+    a: "Take a photo and send it to us. We'll get a replacement out or refund you — whichever you prefer.",
+  },
+];
 
 export function Help() {
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-
-  const faqs = [
-    {
-      id: 1,
-      question: 'How do I place an order?',
-      answer: 'Browse through our products, add items to your cart, and proceed to checkout. Follow the payment and shipping instructions to complete your order.'
-    },
-    {
-      id: 2,
-      question: 'What payment methods do you accept?',
-      answer: 'We accept credit cards, debit cards, digital wallets (Apple Pay, Google Pay), and bank transfers. All transactions are secure and encrypted.'
-    },
-    {
-      id: 3,
-      question: 'How long does shipping take?',
-      answer: 'Standard shipping typically takes 5-10 business days. Express shipping options are available for faster delivery. International orders may take 2-4 weeks depending on the destination.'
-    },
-    {
-      id: 4,
-      question: 'Can I return a product?',
-      answer: 'Yes, we offer 30-day returns on most products. Items must be unused and in original packaging. Contact our support team to initiate a return.'
-    },
-    {
-      id: 5,
-      question: 'How do I track my order?',
-      answer: 'Once your order ships, you\'ll receive a tracking number via email. You can use this number to track your package in real-time.'
-    },
-    {
-      id: 6,
-      question: 'Is my personal information secure?',
-      answer: 'Absolutely! We use industry-leading encryption and security measures to protect your personal and payment information. Your privacy is our top priority.'
-    },
-    {
-      id: 7,
-      question: 'Do you ship internationally?',
-      answer: 'Yes, we ship to over 150 countries worldwide. Shipping costs and times vary by location. Check our shipping policy for more details.'
-    },
-    {
-      id: 8,
-      question: 'What should I do if I received a damaged item?',
-      answer: 'Contact us immediately with photos of the damage. We\'ll arrange a replacement or refund at no additional cost to you.'
-    }
-  ];
+  const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Hero Section */}
-      <div className="bg-red-600 text-white py-12">
+    <div className="min-h-screen bg-white">
+      <section className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold">Help & Support</h1>
-          <p className="mt-2 text-red-200">Find answers to your questions and get support when you need it</p>
+          <h1 className="text-4xl lg:text-5xl font-bold text-[#0a0a0a] mb-4 tracking-tight">Help</h1>
+          <p className="text-[#71717a] text-lg max-w-xl">
+            Answers to the most common questions. If something's not here, use the contact form.
+          </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div className="bg-[#141414] rounded-lg shadow-md p-6 text-center cursor-pointer hover:shadow-lg transition-shadow border border-white/10">
-            <h3 className="font-bold text-white mb-2">Order Status</h3>
-            <p className="text-sm text-gray-400">Track your order in real-time</p>
+      <section className="pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-14">
+            <Link to="/contact" className="bg-white rounded-lg p-5 border border-[#e4e4e7] hover:border-[#0a0a0a] transition-colors">
+              <p className="text-[#0a0a0a] text-sm font-medium mb-1">Orders</p>
+              <p className="text-[#a1a1aa] text-xs">Track or change an order</p>
+            </Link>
+            <Link to="/contact" className="bg-white rounded-lg p-5 border border-[#e4e4e7] hover:border-[#0a0a0a] transition-colors">
+              <p className="text-[#0a0a0a] text-sm font-medium mb-1">Returns</p>
+              <p className="text-[#a1a1aa] text-xs">Start a return or exchange</p>
+            </Link>
+            <Link to="/contact" className="bg-white rounded-lg p-5 border border-[#e4e4e7] hover:border-[#0a0a0a] transition-colors">
+              <p className="text-[#0a0a0a] text-sm font-medium mb-1">Shipping</p>
+              <p className="text-[#a1a1aa] text-xs">Rates and delivery times</p>
+            </Link>
+            <Link to="/contact" className="bg-white rounded-lg p-5 border border-[#e4e4e7] hover:border-[#0a0a0a] transition-colors">
+              <p className="text-[#0a0a0a] text-sm font-medium mb-1">Account</p>
+              <p className="text-[#a1a1aa] text-xs">Profile and payment settings</p>
+            </Link>
           </div>
-          <div className="bg-[#141414] rounded-lg shadow-md p-6 text-center cursor-pointer hover:shadow-lg transition-shadow border border-white/10">
-            <h3 className="font-bold text-white mb-2">Returns</h3>
-            <p className="text-sm text-gray-400">Learn about our return policy</p>
-          </div>
-          <div className="bg-[#141414] rounded-lg shadow-md p-6 text-center cursor-pointer hover:shadow-lg transition-shadow border border-white/10">
-            <h3 className="font-bold text-white mb-2">Shipping</h3>
-            <p className="text-sm text-gray-400">Shipping info and rates</p>
-          </div>
-          <div className="bg-[#141414] rounded-lg shadow-md p-6 text-center cursor-pointer hover:shadow-lg transition-shadow border border-white/10">
-            <h3 className="font-bold text-white mb-2">Account</h3>
-            <p className="text-sm text-gray-400">Manage your account</p>
-          </div>
-        </div>
 
-        {/* FAQ Section */}
-        <div className="bg-[#141414] rounded-lg shadow-md p-8 border border-white/10">
-          <h2 className="text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-4">
-            {faqs.map((faq) => (
-              <div key={faq.id} className="border border-white/10 rounded-lg">
-                <button
-                  onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
-                >
-                  <span className="font-medium text-white">{faq.question}</span>
-                  {expandedFaq === faq.id ? (
-                    <ChevronUp className="w-5 h-5 text-red-600" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
-                  )}
-                </button>
-                {expandedFaq === faq.id && (
-                  <div className="px-6 py-4 bg-white/5 border-t border-white/10">
-                    <p className="text-gray-300">{faq.answer}</p>
+          <div className="max-w-2xl">
+            <h2 className="text-2xl font-bold text-[#0a0a0a] mb-6 tracking-tight">Common questions</h2>
+            <div className="space-y-2">
+              {faqs.map((faq, i) => (
+                <div key={i} className="bg-white rounded-lg border border-[#e4e4e7] overflow-hidden">
+                  <button
+                    onClick={() => setOpen(open === i ? null : i)}
+                    className="w-full text-left px-5 py-4 flex items-center justify-between gap-4"
+                  >
+                    <span className="text-[#0a0a0a] text-sm font-medium">{faq.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-[#a1a1aa] shrink-0 transition-transform duration-200 ${open === i ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-200 ${open === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <p className="px-5 pb-4 text-[#71717a] text-sm leading-relaxed">{faq.a}</p>
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Contact Support */}
-        <div className="mt-12 bg-red-600 text-white rounded-lg shadow-md p-8 text-center">
-          <h3 className="text-2xl font-bold mb-2">Need More Help?</h3>
-          <p className="mb-6">Can't find what you're looking for? Our support team is here to help!</p>
-          <button className="bg-white text-red-600 font-medium px-6 py-2 rounded-lg hover:bg-white/90 transition-colors">
-            Contact Support
-          </button>
+      <section className="pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#fafafa] rounded-lg border border-[#e4e4e7] p-8 max-w-2xl">
+            <h3 className="text-lg font-semibold text-[#0a0a0a] mb-2">Still stuck?</h3>
+            <p className="text-[#71717a] text-sm mb-5">
+              Our support team usually responds within a few hours. You can also reach us on live chat.
+            </p>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 bg-[#0a0a0a] text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-[#2a2a2a] transition-colors"
+            >
+              Contact us
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

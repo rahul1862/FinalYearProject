@@ -1,4 +1,3 @@
-import { Globe, Users, MapPin, Award } from 'lucide-react';
 
 const timeline = [
   { year: '2019', title: 'Started in a spare room', desc: 'Two friends who kept buying terrible knockoffs online figured they could do this better.' },
@@ -10,15 +9,15 @@ const timeline = [
 
 export function About() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-white">
       {/* Hero */}
       <section className="pt-20 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl lg:text-6xl font-bold text-[#0a0a0a] mb-6 leading-tight tracking-tight">
               We started this because we were tired of getting ripped off online
             </h1>
-            <p className="text-lg text-neutral-400 leading-relaxed">
+            <p className="text-lg text-[#71717a] leading-relaxed">
               Vendr exists because buying authentic products from other countries used to be
               a gamble. We wanted to make it boring-reliable. That's pretty much the whole story.
             </p>
@@ -27,20 +26,25 @@ export function About() {
       </section>
 
       {/* Numbers */}
-      <section className="bg-[#111] border-y border-neutral-800">
+      <section className="bg-[#fafafa] border-y border-[#e4e4e7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-neutral-800">
-            {[
-              { value: '2M+', label: 'Orders placed', icon: Users },
-              { value: '14', label: 'Countries', icon: Globe },
-              { value: '150+', label: 'Destinations', icon: MapPin },
-              { value: '4.8', label: 'Avg. rating', icon: Award },
-            ].map((s) => (
-              <div key={s.label} className="py-8 px-4 lg:px-6 text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-white mb-1">{s.value}</div>
-                <div className="text-neutral-500 text-sm">{s.label}</div>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-[#e4e4e7]">
+            <div className="py-8 px-4 lg:px-6 text-center">
+              <div className="text-2xl lg:text-3xl font-bold text-[#0a0a0a] mb-1">2M+</div>
+              <div className="text-[#a1a1aa] text-sm">Orders placed</div>
+            </div>
+            <div className="py-8 px-4 lg:px-6 text-center">
+              <div className="text-2xl lg:text-3xl font-bold text-[#0a0a0a] mb-1">14</div>
+              <div className="text-[#a1a1aa] text-sm">Countries</div>
+            </div>
+            <div className="py-8 px-4 lg:px-6 text-center">
+              <div className="text-2xl lg:text-3xl font-bold text-[#0a0a0a] mb-1">150+</div>
+              <div className="text-[#a1a1aa] text-sm">Destinations</div>
+            </div>
+            <div className="py-8 px-4 lg:px-6 text-center">
+              <div className="text-2xl lg:text-3xl font-bold text-[#0a0a0a] mb-1">4.8</div>
+              <div className="text-[#a1a1aa] text-sm">Avg. rating</div>
+            </div>
           </div>
         </div>
       </section>
@@ -50,23 +54,23 @@ export function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
             <div>
-              <h2 className="text-3xl font-bold text-white mb-4">
+              <h2 className="text-3xl font-bold text-[#0a0a0a] mb-4 tracking-tight">
                 What we actually care about
               </h2>
-              <p className="text-neutral-400 leading-relaxed">
+              <p className="text-[#71717a] leading-relaxed">
                 There's a lot of ecommerce out there. Here's why we think we're worth your time.
               </p>
             </div>
 
             <div className="space-y-4">
               {[
-                { title: 'We check everything', desc: 'Every product sold here is verified. If we can\'t confirm it\'s genuine, it doesn\'t go on the site. We\'ve dropped sellers over this.' },
-                { title: 'Small makers, fair prices', desc: 'Most of our sellers are independent businesses or individual artisans. They set their own prices — we don\'t push them to go lower.' },
-                { title: 'Shipping should be boring', desc: 'You order something, it shows up in under two weeks. That\'s it. No mystery, no "your package is in transit" for 45 days.' },
-              ].map((item) => (
-                <div key={item.title} className="bg-[#141414] rounded-lg p-5 border border-neutral-800">
-                  <h3 className="text-white font-semibold mb-2">{item.title}</h3>
-                  <p className="text-neutral-400 text-sm leading-relaxed">{item.desc}</p>
+                { title: 'We check everything', desc: "Every product sold here is verified. If we can't confirm it's genuine, it doesn't go on the site. We've dropped sellers over this." },
+                { title: 'Small makers, fair prices', desc: "Most of our sellers are independent businesses or individual artisans. They set their own prices — we don't push them to go lower." },
+                { title: 'Shipping should be boring', desc: "You order something, it shows up in under two weeks. That's it. No mystery, no 'your package is in transit' for 45 days." },
+              ].map(item => (
+                <div key={item.title} className="bg-white rounded-lg p-5 border border-[#e4e4e7]">
+                  <h3 className="text-[#0a0a0a] font-semibold mb-2">{item.title}</h3>
+                  <p className="text-[#71717a] text-sm leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -75,20 +79,20 @@ export function About() {
       </section>
 
       {/* Timeline */}
-      <section className="py-20 bg-black">
+      <section className="py-20 bg-[#fafafa] border-y border-[#e4e4e7]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-12">How we got here</h2>
+          <h2 className="text-3xl font-bold text-[#0a0a0a] mb-12 tracking-tight">How we got here</h2>
 
           <div className="relative">
-            <div className="absolute left-4 top-2 bottom-2 w-px bg-neutral-800"></div>
+            <div className="absolute left-4 top-2 bottom-2 w-px bg-[#e4e4e7]" />
 
             <div className="space-y-10">
-              {timeline.map((item) => (
+              {timeline.map(item => (
                 <div key={item.year} className="relative pl-12">
-                  <div className="absolute left-[10px] top-1.5 w-[10px] h-[10px] rounded-full bg-red-600"></div>
-                  <span className="text-red-500 text-sm font-mono">{item.year}</span>
-                  <h3 className="text-white text-lg font-semibold mt-1 mb-1">{item.title}</h3>
-                  <p className="text-neutral-400 text-sm leading-relaxed">{item.desc}</p>
+                  <div className="absolute left-[10px] top-1.5 w-[10px] h-[10px] rounded-full bg-[#0a0a0a]" />
+                  <span className="text-[#a1a1aa] text-sm font-mono">{item.year}</span>
+                  <h3 className="text-[#0a0a0a] text-lg font-semibold mt-1 mb-1">{item.title}</h3>
+                  <p className="text-[#71717a] text-sm leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -97,17 +101,17 @@ export function About() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#0a0a0a]">
+      <section className="py-20 bg-white">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-3xl font-bold text-[#0a0a0a] mb-4 tracking-tight">
             Want to take a look?
           </h2>
-          <p className="text-neutral-400 mb-8">
+          <p className="text-[#71717a] mb-8">
             Browse the catalog and see if anything catches your eye. First orders ship free.
           </p>
           <a
             href="/products"
-            className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
+            className="inline-flex items-center gap-2 bg-[#0a0a0a] text-white px-6 py-3 rounded-lg hover:bg-[#2a2a2a] transition-colors font-medium text-sm"
           >
             Browse products
           </a>

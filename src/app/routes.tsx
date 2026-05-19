@@ -5,6 +5,7 @@ import { Products } from "./pages/Products";
 import { ProductDetail } from "./pages/ProductDetail";
 import { Cart } from "./pages/Cart";
 import { Checkout } from "./pages/Checkout";
+import { Payment } from "./pages/Payment";
 import { Deals } from "./pages/Deals";
 import { About } from "./pages/About";
 import { Contact } from "./pages/Contact";
@@ -12,20 +13,22 @@ import { Help } from "./pages/Help";
 import { PricingChart } from "./pages/PricingChart";
 import { ComparisonChart } from "./pages/ComparisonChart";
 import { Wishlist } from "./pages/Wishlist";
-import { NotFound } from "./pages/NotFound";
+import { MyOrders } from "./pages/MyOrders";
+import { SellItem } from "./pages/SellItem";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
+import { NotFound } from "./pages/NotFound";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
     Component: Root,
     children: [
-      { index: true, Component: Home },
+      { path: "/", Component: Home },
       { path: "products", Component: Products },
       { path: "products/:id", Component: ProductDetail },
       { path: "cart", Component: Cart },
       { path: "checkout", Component: Checkout },
+      { path: "payment", Component: Payment },
       { path: "deals", Component: Deals },
       { path: "about", Component: About },
       { path: "contact", Component: Contact },
@@ -33,6 +36,8 @@ export const router = createBrowserRouter([
       { path: "pricing", Component: PricingChart },
       { path: "comparison", Component: ComparisonChart },
       { path: "wishlist", Component: Wishlist },
+      { path: "orders", Component: MyOrders },
+      { path: "sell", Component: SellItem },
       { path: "login", Component: Login },
       { path: "register", Component: Register },
       { path: "*", Component: NotFound },

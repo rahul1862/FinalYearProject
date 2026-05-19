@@ -1,8 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
-import { Star, ShoppingCart, Heart } from 'lucide-react';
+import { ShoppingCart, Heart } from 'lucide-react';
 import { Product } from '../context/CartContext';
 import { useCart } from '../context/CartContext';
-import { useCountry } from '../context/CountryContext';
 import { useWishlist } from '../context/WishlistContext';
 
 interface ProductCardProps {
@@ -11,86 +11,68 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
-  const { getCurrency } = useCountry();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const currency = getCurrency();
+  const [added, setAdded] = useState(false);
   const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     addToCart(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1200);
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isWishlisted) {
-      removeFromWishlist(product.id);
-    } else {
-      addToWishlist(product);
-    }
+    isWishlisted ? removeFromWishlist(product.id) : addToWishlist(product);
   };
 
   return (
-    <Link
-      to={`/products/${product.id}`}
-      className="group block h-full"
-    >
-      <div className="bg-[#141414] rounded-xl overflow-hidden border border-neutral-800 h-full flex flex-col hover:border-neutral-700 transition-colors relative">
-        <button
-          onClick={handleWishlist}
-          className="absolute top-3 right-3 z-20 w-8 h-8 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <Heart
-            className={`w-4 h-4 ${
-              isWishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-400'
-            }`}
-          />
-        </button>
-
-        <div className="aspect-square overflow-hidden bg-neutral-900 relative">
+    <Link to={`/products/${product.id}`} className="group block h-full">
+      <div className="border border-[#e4e4e7] rounded-xl overflow-hidden bg-white h-full flex flex-col transition-all duration-300 group-hover:border-[#0a0a0a] group-hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+        {/* Image */}
+        <div className="aspect-square overflow-hidden relative bg-[#f4f4f5]">
           <img
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          <div className="absolute top-3 left-3 bg-black/70 text-white px-2.5 py-1 rounded text-xs font-medium">
+          {/* Wishlist */}
+          <button
+            onClick={handleWishlist}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-[#e4e4e7] hover:border-[#0a0a0a]"
+          >
+            <Heart
+              className="w-4 h-4"
+              style={{ color: isWishlisted ? '#0a0a0a' : '#a1a1aa', fill: isWishlisted ? '#0a0a0a' : 'none' }}
+            />
+          </button>
+          {/* Country badge */}
+          <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-md text-xs font-medium text-[#0a0a0a] border border-[#e4e4e7]">
             {product.flag} {product.country}
           </div>
         </div>
 
-        <div className="p-4 flex-1 flex flex-col justify-between">
-          <div>
-            <p className="text-xs text-neutral-500 mb-1">{product.category}</p>
-            <h3 className="font-medium text-white mb-2 line-clamp-2 text-sm leading-snug group-hover:text-red-400 transition-colors">
-              {product.name}
-            </h3>
-            <div className="flex items-center gap-1.5 mb-3">
-              <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-3 h-3 ${
-                      i < Math.floor(product.rating)
-                        ? 'fill-red-500 text-red-500'
-                        : 'text-neutral-700'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-neutral-400">{product.rating} ({product.reviews})</span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-3 border-t border-neutral-800">
-            <span className="text-lg font-bold text-white">
-              {currency.symbol}{product.price.toFixed(2)}
-            </span>
+        {/* Body */}
+        <div className="p-4 flex-1 flex flex-col">
+          <p className="text-xs text-[#a1a1aa] mb-1">{product.category}</p>
+          <h3 className="text-sm font-semibold text-[#0a0a0a] mb-3 line-clamp-2 leading-snug flex-1">
+            {product.name}
+          </h3>
+          <div className="flex items-center justify-between pt-3 border-t border-[#f0f0f0]">
+            <span className="text-base font-bold text-[#0a0a0a]">${product.price.toFixed(2)}</span>
             <button
               onClick={handleAddToCart}
-              className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-1.5 text-xs font-medium"
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#e4e4e7] rounded-lg text-xs font-medium transition-all duration-200"
+              style={added
+                ? { background: '#0a0a0a', color: '#ffffff', borderColor: '#0a0a0a' }
+                : { color: '#0a0a0a' }
+              }
+              onMouseEnter={e => { if (!added) { (e.currentTarget as HTMLElement).style.background = '#0a0a0a'; (e.currentTarget as HTMLElement).style.color = '#ffffff'; (e.currentTarget as HTMLElement).style.borderColor = '#0a0a0a'; } }}
+              onMouseLeave={e => { if (!added) { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = '#0a0a0a'; (e.currentTarget as HTMLElement).style.borderColor = '#e4e4e7'; } }}
             >
               <ShoppingCart className="w-3.5 h-3.5" />
-              Add
+              {added ? 'Added!' : 'Add'}
             </button>
           </div>
         </div>

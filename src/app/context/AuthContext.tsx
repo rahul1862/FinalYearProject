@@ -1,79 +1,69 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
+import { api, setToken, clearToken, getToken } from '../utils/api';
 
-interface User {
+export interface User {
+  id: number;
   name: string;
   email: string;
 }
 
-interface StoredAccount extends User {
-  password: string;
+interface AuthResult {
+  ok: boolean;
+  error?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => boolean;
-  register: (name: string, email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<AuthResult>;
+  register: (name: string, email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
 const SESSION_KEY = 'vendr-session';
-const ACCOUNTS_KEY = 'vendr-accounts';
 
-function getAccounts(): StoredAccount[] {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function loadSession(): User | null {
   try {
-    return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]');
+    const saved = localStorage.getItem(SESSION_KEY);
+    return saved ? JSON.parse(saved) : null;
   } catch {
-    return [];
+    return null;
   }
-}
-
-function saveAccounts(accounts: StoredAccount[]) {
-  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
+  const [user, setUser] = useState<User | null>(loadSession);
+
+  const login = async (email: string, password: string): Promise<AuthResult> => {
     try {
-      const stored = localStorage.getItem(SESSION_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
+      const data = await api.post<{ token: string; user: User }>('/api/auth/login', { email, password });
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : 'Login failed.' };
     }
-  });
+  };
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(SESSION_KEY);
+  const register = async (name: string, email: string, password: string): Promise<AuthResult> => {
+    try {
+      const data = await api.post<{ token: string; user: User }>('/api/auth/register', { name, email, password });
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : 'Registration failed.' };
     }
-  }, [user]);
+  };
 
-  function login(email: string, password: string): boolean {
-    const accounts = getAccounts();
-    const match = accounts.find(
-      a => a.email.toLowerCase() === email.toLowerCase() && a.password === password
-    );
-    if (!match) return false;
-    setUser({ name: match.name, email: match.email });
-    return true;
-  }
-
-  function register(name: string, email: string, password: string): boolean {
-    const accounts = getAccounts();
-    const exists = accounts.some(a => a.email.toLowerCase() === email.toLowerCase());
-    if (exists) return false;
-    saveAccounts([...accounts, { name, email, password }]);
-    setUser({ name, email });
-    return true;
-  }
-
-  function logout() {
+  const logout = () => {
     setUser(null);
-  }
+    clearToken();
+    localStorage.removeItem(SESSION_KEY);
+  };
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout }}>
@@ -84,6 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }

@@ -1,172 +1,202 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Headphones, User, ShoppingBag, HelpCircle, Phone, Mail } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  MessageCircle,
+  X,
+  Send,
+  Headphones,
+  User,
+  ShoppingBag,
+  HelpCircle,
+  Phone,
+} from 'lucide-react';
+
+type MessageType = 'text' | 'quick_reply' | 'product_recommendation';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'agent';
   timestamp: Date;
-  type?: 'text' | 'quick_reply' | 'product_recommendation';
+  type?: MessageType;
   options?: string[];
 }
 
+const createId = () =>
+  `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+const pick = (items: string[]) =>
+  items[Math.floor(Math.random() * items.length)];
+
+const formatTime = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
+
+const initialMessage: Message = {
+  id: createId(),
+  text: 'Hi, welcome to Vendr. I can help with products, orders, sizing, returns, or support. What do you need?',
+  sender: 'agent',
+  timestamp: new Date(),
+  type: 'quick_reply',
+  options: ['Browse Products', 'Track Order', 'Customer Support', 'Size Guide'],
+};
+
 export function SupportChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Hi! 👋 Welcome to Vendr! How can I help you today?',
-      sender: 'agent',
-      timestamp: new Date(),
-      type: 'quick_reply',
-      options: ['Browse Products', 'Track Order', 'Customer Support', 'Size Guide']
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([initialMessage]);
   const [inputValue, setInputValue] = useState('');
   const [showNotification, setShowNotification] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const notificationTimeoutRef = useRef<number | null>(null);
+  const responseTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const showTimer = window.setTimeout(() => {
       setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 5000);
+      notificationTimeoutRef.current = window.setTimeout(() => {
+        setShowNotification(false);
+      }, 5000);
     }, 3000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      window.clearTimeout(showTimer);
+      if (notificationTimeoutRef.current) window.clearTimeout(notificationTimeoutRef.current);
+      if (responseTimeoutRef.current) window.clearTimeout(responseTimeoutRef.current);
+    };
   }, []);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
 
-  const generateResponse = (userMessage: string): Message => {
-    const message = userMessage.toLowerCase();
+  const generateResponse = useCallback((userMessage: string): Message => {
+    const msg = userMessage.toLowerCase();
 
-    if (message.includes('recommend') || message.includes('suggest') || message.includes('looking for')) {
+    if (msg.includes("recommend") || msg.includes("suggest") || msg.includes("looking for") || msg.includes("browse") || msg.includes("products")) {
       return {
-        id: Date.now().toString(),
-        text: 'Based on your interests, here are some popular items you might like:',
-        sender: 'agent',
+        id: createId(),
+        text: pick([
+          "Here are a few items people usually go for. Tell me if you want something more specific.",
+          "A few popular options are below. I can narrow them down if you have a style or budget in mind.",
+          "These are some common picks. I can make better suggestions if you tell me what you're looking for.",
+        ]),
+        sender: "agent",
         timestamp: new Date(),
-        type: 'product_recommendation'
+        type: "product_recommendation",
+      };
+    } else if (msg.includes("order") || msg.includes("track") || msg.includes("status")) {
+      return {
+        id: createId(),
+        text: pick([
+          "Sure, I can check that. Send me your order number.",
+          "No problem, I can look that up. What's your order number?",
+          "Let's check that. Do you have your order number?",
+        ]),
+        sender: "agent",
+        timestamp: new Date(),
+        type: "quick_reply",
+        options: ["I have an order number", "How do I find my order number?"],
+      };
+    } else if (msg.includes("help") || msg.includes("support") || msg.includes("problem") || msg.includes("contact")) {
+      return {
+        id: createId(),
+        text: pick([
+          "Okay, what seems to be the issue?",
+          "Sure, what do you need help with?",
+          "I can help with that. What happened?",
+        ]),
+        sender: "agent",
+        timestamp: new Date(),
+        type: "quick_reply",
+        options: ["Return/Exchange", "Payment Issues", "Shipping Info", "Speak to Human"],
+      };
+    } else if (msg.includes("size") || msg.includes("fit") || msg.includes("measurement")) {
+      return {
+        id: createId(),
+        text: pick([
+          "Sizing can vary a bit. Do you want a size chart or help choosing?",
+          "Sure. I can show the size guide or help you pick based on your measurements.",
+          "I can help with sizing. Are you looking for a chart or a recommendation?",
+        ]),
+        sender: "agent",
+        timestamp: new Date(),
+        type: "quick_reply",
+        options: ["Show me the size guide", "How to measure", "Size recommendations"],
+      };
+    } else if (msg.includes("shipping") || msg.includes("delivery") || msg.includes("when")) {
+      return {
+        id: createId(),
+        text: pick([
+          "Standard delivery takes 3–5 days. Express is usually 1–2 days.",
+          "Most orders arrive in 3–5 business days. Express delivery is usually faster.",
+          "Shipping depends on the option you choose. Standard is usually 3–5 days.",
+        ]),
+        sender: "agent",
+        timestamp: new Date(),
+        type: "quick_reply",
+        options: ["Calculate shipping", "International rates", "Express options"],
+      };
+    } else if (msg.includes("return") || msg.includes("exchange") || msg.includes("refund")) {
+      return {
+        id: createId(),
+        text: pick([
+          "You can return items within 30 days if they're unused. What do you want to do?",
+          "Returns are accepted within 30 days for unused items with tags. Do you want to start one?",
+          "I can help with that. Is this for a return, exchange, or refund?",
+        ]),
+        sender: "agent",
+        timestamp: new Date(),
+        type: "quick_reply",
+        options: ["Start return process", "Return policy details", "Return shipping"],
       };
     }
-
-    if (message.includes('order') || message.includes('track') || message.includes('status')) {
-      return {
-        id: Date.now().toString(),
-        text: 'I can help you track your order! Please provide your order number, and I\'ll check the status for you.',
-        sender: 'agent',
-        timestamp: new Date(),
-        type: 'quick_reply',
-        options: ['I have an order number', 'How do I find my order number?']
-      };
-    }
-
-    if (message.includes('help') || message.includes('support') || message.includes('problem')) {
-      return {
-        id: Date.now().toString(),
-        text: 'I\'m here to help! What specific assistance do you need?',
-        sender: 'agent',
-        timestamp: new Date(),
-        type: 'quick_reply',
-        options: ['Return/Exchange', 'Payment Issues', 'Shipping Info', 'Speak to Human']
-      };
-    }
-
-    if (message.includes('size') || message.includes('fit') || message.includes('measurement')) {
-      return {
-        id: Date.now().toString(),
-        text: 'Our size guide is designed to help you find the perfect fit. Check out our detailed size charts for each product category. Would you like me to show you how to measure yourself?',
-        sender: 'agent',
-        timestamp: new Date(),
-        type: 'quick_reply',
-        options: ['Show me the size guide', 'How to measure', 'Size recommendations']
-      };
-    }
-
-    if (message.includes('shipping') || message.includes('delivery') || message.includes('when')) {
-      return {
-        id: Date.now().toString(),
-        text: 'We offer fast, reliable shipping worldwide! Standard delivery takes 3-5 business days, express 1-2 days. Free shipping on orders over $100. International shipping available to 150+ countries.',
-        sender: 'agent',
-        timestamp: new Date(),
-        type: 'quick_reply',
-        options: ['Calculate shipping', 'International rates', 'Express options']
-      };
-    }
-
-    if (message.includes('return') || message.includes('exchange') || message.includes('refund')) {
-      return {
-        id: Date.now().toString(),
-        text: 'We offer a 30-day return policy on all items. Items must be unused with original tags. Free return shipping for defective items. How can I help with your return?',
-        sender: 'agent',
-        timestamp: new Date(),
-        type: 'quick_reply',
-        options: ['Start return process', 'Return policy details', 'Return shipping']
-      };
-    }
-
-    const defaultResponses = [
-      'That\'s a great question! Let me help you with that.',
-      'I\'d be happy to assist you with that.',
-      'Let me check that for you.',
-      'Thanks for asking! Here\'s what I can tell you:',
-      'I understand. Let me provide you with the information you need.'
-    ];
 
     return {
-      id: Date.now().toString(),
-      text: defaultResponses[Math.floor(Math.random() * defaultResponses.length)] + ' Could you please provide more details about what you\'re looking for?',
-      sender: 'agent',
+      id: createId(),
+      text: pick([
+        "I'm not fully sure what you mean yet. Can you tell me a bit more?",
+        "I can help with that, but I need a little more detail.",
+        "Could you give me a bit more information so I can point you in the right direction?",
+      ]),
+      sender: "agent",
       timestamp: new Date(),
-      type: 'quick_reply',
-      options: ['Browse Products', 'Customer Support', 'Contact Us']
+      type: "quick_reply",
+      options: ["Browse Products", "Track Order", "Customer Support"],
     };
-  };
+  }, []);
 
-  const handleSendMessage = (text?: string) => {
-    const messageText = text || inputValue.trim();
-    if (!messageText) return;
+  const handleSendMessage = useCallback(
+    (text?: string) => {
+      const messageText = (text ?? inputValue).trim();
+      if (!messageText || isTyping) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: messageText,
-      sender: 'user',
-      timestamp: new Date()
-    };
+      const userMessage: Message = {
+        id: createId(),
+        text: messageText,
+        sender: 'user',
+        timestamp: new Date(),
+        type: 'text',
+      };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+      setMessages(prev => [...prev, userMessage]);
+      setInputValue('');
+      setIsTyping(true);
 
-    const button = document.activeElement as HTMLButtonElement;
-    if (button) {
-      button.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        button.style.transform = 'scale(1)';
-      }, 100);
-    }
+      if (responseTimeoutRef.current) window.clearTimeout(responseTimeoutRef.current);
 
-    setIsTyping(true);
+      responseTimeoutRef.current = window.setTimeout(() => {
+        setMessages(prev => [...prev, generateResponse(messageText)]);
+        setIsTyping(false);
+      }, 700 + Math.random() * 600);
+    },
+    [inputValue, isTyping, generateResponse]
+  );
 
-    setTimeout(() => {
-      const agentResponse = generateResponse(messageText);
-      setMessages(prev => [...prev, agentResponse]);
-      setIsTyping(false);
-    }, 1000 + Math.random() * 1000);
-  };
-
-  const handleQuickReply = (option: string) => {
-    handleSendMessage(option);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleSendMessage();
     }
@@ -174,82 +204,87 @@ export function SupportChat() {
 
   return (
     <>
-      {/* Welcome Notification */}
+      {/* Notification popup */}
       {showNotification && !isOpen && (
-        <div className="fixed bottom-24 right-6 bg-[#141414] rounded-xl shadow-lg border border-neutral-800 p-4 max-w-xs z-40 animate-fade-in">
+        <div className="fixed bottom-24 right-6 bg-white rounded-xl shadow-lg border border-[#e4e4e7] p-4 max-w-xs z-40 animate-fade-in">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 bg-[#0a0a0a] rounded-full flex items-center justify-center shrink-0">
               <Headphones className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-white font-medium mb-1">Need help shopping?</p>
-              <p className="text-xs text-gray-400">I'm here to assist you with product recommendations and support!</p>
+              <p className="text-sm text-[#0a0a0a] font-medium mb-1">Need help?</p>
+              <p className="text-xs text-[#71717a]">
+                You can ask about orders, products, or returns.
+              </p>
             </div>
             <button
+              type="button"
               onClick={() => setShowNotification(false)}
-              className="text-gray-500 hover:text-gray-300"
+              className="text-[#a1a1aa] hover:text-[#0a0a0a] transition-colors"
+              aria-label="Dismiss notification"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
+
           <div className="mt-3 flex gap-2">
             <button
-              onClick={() => {
-                setShowNotification(false);
-                setIsOpen(true);
-              }}
-              className="flex-1 bg-red-600 text-white text-xs px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              type="button"
+              onClick={() => { setShowNotification(false); setIsOpen(true); }}
+              className="flex-1 bg-[#0a0a0a] text-white text-xs px-3 py-2 rounded-lg hover:bg-[#2a2a2a] transition-colors"
             >
-              Chat Now
+              Open chat
             </button>
             <button
+              type="button"
               onClick={() => setShowNotification(false)}
-              className="text-xs text-gray-500 hover:text-gray-300 px-3 py-2"
+              className="text-xs text-[#71717a] hover:text-[#0a0a0a] px-3 py-2 transition-colors"
             >
-              Later
+              Not now
             </button>
           </div>
         </div>
       )}
 
-      {/* Chat Button */}
+      {/* Toggle button */}
       {!isOpen && (
         <button
+          type="button"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 bg-red-600 text-white p-3.5 rounded-full shadow-lg hover:bg-red-700 transition-colors z-50"
+          className="fixed bottom-6 right-6 bg-[#0a0a0a] text-white p-3.5 rounded-full shadow-lg hover:bg-[#2a2a2a] transition-colors z-50"
+          aria-label="Open chat"
         >
           <MessageCircle className="w-5 h-5" />
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
-            ?
-          </div>
         </button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-[#141414] rounded-xl shadow-lg border border-neutral-800 z-50 flex flex-col overflow-hidden">
+        <div className="fixed bottom-6 right-6 w-[calc(100vw-3rem)] max-w-96 h-[min(600px,calc(100vh-3rem))] bg-white rounded-xl shadow-xl border border-[#e4e4e7] z-50 flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="bg-red-600 text-white p-4 flex items-center justify-between">
+          <div className="bg-[#0a0a0a] text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
                 <Headphones className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold">Vendr Support</h3>
-                <p className="text-xs text-red-200">Online now</p>
+                <h3 className="font-bold text-sm">Support</h3>
+                <p className="text-xs text-white/60">Available</p>
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-white/60 hover:text-white transition-colors"
+              aria-label="Close chat"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#fafafa]">
+            {messages.map(message => (
               <div
                 key={message.id}
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -257,29 +292,32 @@ export function SupportChat() {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                     message.sender === 'user'
-                      ? 'bg-red-600 text-white'
-                      : 'bg-white/10 text-white'
+                      ? 'bg-[#0a0a0a] text-white'
+                      : 'bg-white text-[#0a0a0a] border border-[#e4e4e7]'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     {message.sender === 'agent' ? (
-                      <Headphones className="w-4 h-4 text-red-500" />
+                      <Headphones className="w-4 h-4 text-[#a1a1aa]" />
                     ) : (
-                      <User className="w-4 h-4 text-white" />
+                      <User className="w-4 h-4 text-white/60" />
                     )}
-                    <span className="text-xs opacity-70">
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span className={`text-xs ${message.sender === 'user' ? 'text-white/50' : 'text-[#a1a1aa]'}`}>
+                      {formatTime(message.timestamp)}
                     </span>
                   </div>
+
                   <p className="text-sm leading-relaxed">{message.text}</p>
 
                   {message.type === 'quick_reply' && message.options && (
                     <div className="mt-3 space-y-2">
-                      {message.options.map((option, index) => (
+                      {message.options.map(option => (
                         <button
-                          key={index}
-                          onClick={() => handleQuickReply(option)}
-                          className="block w-full text-left bg-white/20 hover:bg-white/30 text-white text-xs px-3 py-2 rounded-lg transition-colors"
+                          type="button"
+                          key={option}
+                          onClick={() => handleSendMessage(option)}
+                          disabled={isTyping}
+                          className="block w-full text-left bg-[#f4f4f5] hover:bg-[#e4e4e7] disabled:opacity-50 text-[#0a0a0a] text-xs px-3 py-2 rounded-lg transition-colors"
                         >
                           {option}
                         </button>
@@ -288,26 +326,22 @@ export function SupportChat() {
                   )}
 
                   {message.type === 'product_recommendation' && (
-                    <div className="mt-3 space-y-2">
-                      <div className="bg-white/10 rounded-lg p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <ShoppingBag className="w-4 h-4" />
-                          <span className="text-xs font-semibold">Recommended for you</span>
-                        </div>
-                        <div className="space-y-1 text-xs">
-                          <div className="flex justify-between">
-                            <span>Premium Leather Wallet</span>
-                            <span className="font-semibold">$89.99</span>
+                    <div className="mt-3 bg-[#f4f4f5] rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ShoppingBag className="w-4 h-4 text-[#71717a]" />
+                        <span className="text-xs font-semibold text-[#0a0a0a]">Recommended items</span>
+                      </div>
+                      <div className="space-y-1 text-xs">
+                        {[
+                          ['Premium Leather Wallet', '$89.99'],
+                          ['Designer Sunglasses',    '$149.99'],
+                          ['Luxury Watch',           '$299.99'],
+                        ].map(([name, price]) => (
+                          <div key={name} className="flex justify-between gap-4">
+                            <span className="text-[#71717a]">{name}</span>
+                            <span className="font-semibold text-[#0a0a0a]">{price}</span>
                           </div>
-                          <div className="flex justify-between">
-                            <span>Designer Sunglasses</span>
-                            <span className="font-semibold">$149.99</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Luxury Watch</span>
-                            <span className="font-semibold">$299.99</span>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -317,15 +351,11 @@ export function SupportChat() {
 
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-white/10 rounded-2xl px-4 py-3 max-w-[80%]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Headphones className="w-4 h-4 text-red-500" />
-                    <span className="text-xs text-gray-500">Typing...</span>
-                  </div>
+                <div className="bg-white border border-[#e4e4e7] rounded-2xl px-4 py-3 max-w-[80%]">
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-[#a1a1aa] rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-[#a1a1aa] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                    <div className="w-2 h-2 bg-[#a1a1aa] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                   </div>
                 </div>
               </div>
@@ -334,21 +364,23 @@ export function SupportChat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="p-4 border-t border-white/10 bg-white/5">
+          {/* Input area */}
+          <div className="p-4 border-t border-[#e4e4e7] bg-white">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                onChange={e => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type a message"
+                className="flex-1 px-4 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-xl text-[#0a0a0a] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#0a0a0a] focus:border-transparent text-sm"
               />
               <button
+                type="button"
                 onClick={() => handleSendMessage()}
-                disabled={!inputValue.trim()}
-                className="bg-red-600 text-white p-2 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                disabled={!inputValue.trim() || isTyping}
+                className="bg-[#0a0a0a] text-white p-2 rounded-xl hover:bg-[#2a2a2a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                aria-label="Send message"
               >
                 <Send className="w-5 h-5" />
               </button>
@@ -356,22 +388,28 @@ export function SupportChat() {
 
             <div className="flex gap-2 mt-3">
               <button
+                type="button"
                 onClick={() => handleSendMessage('Help with order')}
-                className="flex-1 bg-white/5 border border-white/10 text-gray-300 px-3 py-2 rounded-lg text-xs hover:bg-white/10 transition-colors"
+                disabled={isTyping}
+                className="flex-1 bg-[#fafafa] border border-[#e4e4e7] text-[#71717a] px-3 py-2 rounded-lg text-xs hover:bg-[#f0f0f0] disabled:opacity-50 transition-colors"
               >
                 <HelpCircle className="w-3 h-3 inline mr-1" />
-                Order Help
+                Order
               </button>
               <button
+                type="button"
                 onClick={() => handleSendMessage('Size guide')}
-                className="flex-1 bg-white/5 border border-white/10 text-gray-300 px-3 py-2 rounded-lg text-xs hover:bg-white/10 transition-colors"
+                disabled={isTyping}
+                className="flex-1 bg-[#fafafa] border border-[#e4e4e7] text-[#71717a] px-3 py-2 rounded-lg text-xs hover:bg-[#f0f0f0] disabled:opacity-50 transition-colors"
               >
                 <ShoppingBag className="w-3 h-3 inline mr-1" />
-                Size Guide
+                Size
               </button>
               <button
+                type="button"
                 onClick={() => handleSendMessage('Contact support')}
-                className="flex-1 bg-white/5 border border-white/10 text-gray-300 px-3 py-2 rounded-lg text-xs hover:bg-white/10 transition-colors"
+                disabled={isTyping}
+                className="flex-1 bg-[#fafafa] border border-[#e4e4e7] text-[#71717a] px-3 py-2 rounded-lg text-xs hover:bg-[#f0f0f0] disabled:opacity-50 transition-colors"
               >
                 <Phone className="w-3 h-3 inline mr-1" />
                 Support

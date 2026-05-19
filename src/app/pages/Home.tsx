@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { ArrowRight, Star, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { products } from '../data/products';
 import { ProductCard } from '../components/ProductCard';
 import { useState } from 'react';
@@ -13,149 +14,223 @@ const reviews = [
 
 const categories = [
   { name: 'Electronics', image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=600&q=80', span: 'col-span-2 row-span-2' },
-  { name: 'Fashion', image: 'https://images.unsplash.com/photo-1650542218150-5e59a58d4312?w=600&q=80', span: '' },
-  { name: 'Home', image: 'https://images.unsplash.com/photo-1657524520861-0b2690efc2b2?w=600&q=80', span: '' },
-  { name: 'Beauty', image: 'https://images.unsplash.com/photo-1686831451322-8d8e234a51e1?w=600&q=80', span: 'row-span-2' },
-  { name: 'Food', image: 'https://images.unsplash.com/photo-1505498753650-ac9cb50b158d?w=600&q=80', span: '' },
+  { name: 'Fashion',     image: 'https://images.unsplash.com/photo-1650542218150-5e59a58d4312?w=600&q=80', span: '' },
+  { name: 'Home',        image: 'https://images.unsplash.com/photo-1657524520861-0b2690efc2b2?w=600&q=80', span: '' },
+  { name: 'Beauty',      image: 'https://images.unsplash.com/photo-1686831451322-8d8e234a51e1?w=600&q=80', span: 'row-span-2' },
+  { name: 'Food',        image: 'https://images.unsplash.com/photo-1505498753650-ac9cb50b158d?w=600&q=80', span: '' },
 ];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+};
+
+const stagger = {
+  hidden: {},
+  show:   { transition: { staggerChildren: 0.09 } },
+};
 
 export function Home() {
   const featuredProducts = products.slice(0, 4);
-  const newArrivals = products.slice(8, 14);
+  const newArrivals      = products.slice(8, 14);
   const [email, setEmail] = useState('');
 
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center bg-black">
+    <div className="min-h-screen bg-white">
+
+      {/* ── Hero ── */}
+      <section className="relative min-h-[88vh] flex items-center bg-[#fafafa] border-b border-[#e4e4e7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20 lg:py-0">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[0.95] text-white">
-                Products worth
-                <br />
-                crossing borders for
-              </h1>
 
-              <p className="text-lg mb-10 text-neutral-400 leading-relaxed max-w-lg">
-                We work with makers and sellers in {' '}
-                <span className="text-neutral-200">14 countries</span> to bring you
-                things you won't find at your local mall.
+            <motion.div
+              className="order-2 lg:order-1"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#a1a1aa] mb-7">
+                14 countries · 150+ destinations
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-14">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-7 leading-[0.93] text-[#0a0a0a] tracking-tight">
+                Products worth<br />crossing borders<br />for
+              </h1>
+              <p className="text-lg mb-10 text-[#71717a] leading-relaxed max-w-md">
+                We work with makers and sellers in 14 countries to bring you things you won't find at your local mall.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 mb-12">
                 <Link
                   to="/products"
-                  className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-7 py-3.5 rounded-lg hover:bg-red-700 transition-colors font-semibold text-base"
+                  className="inline-flex items-center justify-center gap-2 bg-[#0a0a0a] text-white px-7 py-3.5 rounded-lg hover:bg-[#2a2a2a] transition-colors font-medium text-sm"
                 >
-                  Browse products
-                  <ArrowRight className="w-4 h-4" />
+                  Browse products <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   to="/deals"
-                  className="inline-flex items-center justify-center gap-2 text-neutral-300 px-7 py-3.5 rounded-lg hover:bg-white/5 transition-colors font-medium border border-neutral-700"
+                  className="inline-flex items-center justify-center gap-2 text-[#0a0a0a] px-7 py-3.5 rounded-lg hover:bg-[#f4f4f5] transition-colors font-medium text-sm border border-[#e4e4e7]"
                 >
                   See current deals
                 </Link>
               </div>
-
-              <div className="flex items-center gap-3 text-sm text-neutral-500">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-red-500 text-red-500" />)}
+              <div className="flex items-center gap-3 text-sm text-[#a1a1aa]">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  ))}
                 </div>
                 <span>Based on 12,000+ reviews</span>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="order-1 lg:order-2">
+            <motion.div
+              className="order-1 lg:order-2"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.75, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            >
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-3">
-                  <div className="rounded-xl overflow-hidden aspect-[3/4]">
+                  <div className="rounded-xl overflow-hidden aspect-[3/4] bg-[#f0f0f0]">
                     <img src={products[3]?.image} alt="" className="w-full h-full object-cover" />
                   </div>
-                  <div className="rounded-xl overflow-hidden aspect-square">
+                  <div className="rounded-xl overflow-hidden aspect-square bg-[#f0f0f0]">
                     <img src={products[9]?.image} alt="" className="w-full h-full object-cover" />
                   </div>
                 </div>
                 <div className="space-y-3 pt-8">
-                  <div className="rounded-xl overflow-hidden aspect-square">
+                  <div className="rounded-xl overflow-hidden aspect-square bg-[#f0f0f0]">
                     <img src={products[5]?.image} alt="" className="w-full h-full object-cover" />
                   </div>
-                  <div className="rounded-xl overflow-hidden aspect-[3/4]">
+                  <div className="rounded-xl overflow-hidden aspect-[3/4] bg-[#f0f0f0]">
                     <img src={products[7]?.image} alt="" className="w-full h-full object-cover" />
                   </div>
                 </div>
               </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust strip ── */}
+      <section className="border-b border-[#e4e4e7]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-[#e4e4e7]">
+            <div className="py-6 px-4 lg:px-6">
+              <p className="text-[#0a0a0a] text-sm font-medium">Free shipping</p>
+              <p className="text-[#a1a1aa] text-sm mt-0.5">On orders over $99</p>
+            </div>
+            <div className="py-6 px-4 lg:px-6">
+              <p className="text-[#0a0a0a] text-sm font-medium">Verified sellers</p>
+              <p className="text-[#a1a1aa] text-sm mt-0.5">Every product checked</p>
+            </div>
+            <div className="py-6 px-4 lg:px-6">
+              <p className="text-[#0a0a0a] text-sm font-medium">Fast delivery</p>
+              <p className="text-[#a1a1aa] text-sm mt-0.5">5–10 business days</p>
+            </div>
+            <div className="py-6 px-4 lg:px-6">
+              <p className="text-[#0a0a0a] text-sm font-medium">Easy returns</p>
+              <p className="text-[#a1a1aa] text-sm mt-0.5">30-day window</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-20 bg-[#0a0a0a]">
+      {/* ── Featured Products ── */}
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-10">
-            <h2 className="text-3xl font-bold text-white">Shop by category</h2>
-            <Link to="/products" className="hidden md:inline-flex items-center gap-1 text-neutral-400 hover:text-white transition-colors text-sm">
-              All categories <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-[180px] gap-3">
-            {categories.map((cat) => (
-              <Link
-                to="/products"
-                key={cat.name}
-                className={`group relative rounded-xl overflow-hidden ${cat.span}`}
-              >
-                <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 p-5">
-                  <h3 className="text-white text-lg font-semibold">{cat.name}</h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="py-20 bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-10">
+          <motion.div
+            className="flex items-end justify-between mb-10"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
             <div>
-              <h2 className="text-3xl font-bold text-white">Popular right now</h2>
-              <p className="text-neutral-500 mt-2">What other people are buying this week</p>
+              <h2 className="text-3xl font-bold text-[#0a0a0a] tracking-tight">Popular right now</h2>
+              <p className="text-[#71717a] mt-2 text-sm">What other people are buying this week</p>
             </div>
-            <Link
-              to="/products"
-              className="hidden md:inline-flex items-center gap-1 text-sm text-neutral-400 hover:text-white transition-colors"
-            >
+            <Link to="/products" className="hidden md:inline-flex items-center gap-1 text-sm text-[#71717a] hover:text-[#0a0a0a] transition-colors">
               View all <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            {featuredProducts.map(product => (
+              <motion.div key={product.id} variants={fadeUp}>
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Categories ── */}
+      <section className="py-20 bg-[#fafafa] border-y border-[#e4e4e7]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="flex items-end justify-between mb-10"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-bold text-[#0a0a0a] tracking-tight">Shop by category</h2>
+            <Link to="/products" className="hidden md:inline-flex items-center gap-1 text-[#71717a] hover:text-[#0a0a0a] transition-colors text-sm">
+              All categories <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-[180px] gap-3">
+            {categories.map((cat, i) => (
+              <motion.div
+                key={cat.name}
+                className={cat.span}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <Link to="/products" className="group relative rounded-xl overflow-hidden block h-full">
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-5">
+                    <h3 className="text-white text-base font-semibold">{cat.name}</h3>
+                  </div>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* New Arrivals */}
-      <section className="py-20 bg-[#0a0a0a]">
+      {/* ── New Arrivals ── */}
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-          <div className="flex items-end justify-between">
-            <h2 className="text-3xl font-bold text-white">New arrivals</h2>
-            <Link to="/products" className="hidden md:inline-flex items-center gap-1 text-sm text-neutral-400 hover:text-white transition-colors">
+          <motion.div
+            className="flex items-end justify-between"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-bold text-[#0a0a0a] tracking-tight">New arrivals</h2>
+            <Link to="/products" className="hidden md:inline-flex items-center gap-1 text-sm text-[#71717a] hover:text-[#0a0a0a] transition-colors">
               See more <ChevronRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </motion.div>
         </div>
-
         <div className="flex gap-5 overflow-x-auto pb-4 px-4 sm:px-6 lg:px-8 snap-x snap-mandatory">
-          {newArrivals.map((product) => (
+          {newArrivals.map(product => (
             <div key={product.id} className="min-w-[260px] sm:min-w-[300px] snap-start shrink-0">
               <ProductCard product={product} />
             </div>
@@ -163,75 +238,82 @@ export function Home() {
         </div>
       </section>
 
-      {/* Info strip */}
-      <section className="border-y border-neutral-800 bg-[#111]">
+      {/* ── Reviews ── */}
+      <section className="py-20 bg-[#fafafa] border-y border-[#e4e4e7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-neutral-800">
-            {[
-              { label: 'Free shipping', detail: 'On orders over $99' },
-              { label: 'Verified sellers', detail: 'Every product checked' },
-              { label: 'Fast delivery', detail: '5-10 business days' },
-              { label: 'Easy returns', detail: '30-day return window' },
-            ].map((item) => (
-              <div key={item.label} className="py-6 lg:px-6">
-                <p className="text-white text-sm font-medium">{item.label}</p>
-                <p className="text-neutral-500 text-sm mt-0.5">{item.detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <motion.h2
+            className="text-3xl font-bold text-[#0a0a0a] mb-10 tracking-tight"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            What customers are saying
+          </motion.h2>
 
-      {/* Reviews */}
-      <section className="py-20 bg-[#0a0a0a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-10">What customers are saying</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
             {reviews.map((t, i) => (
-              <div key={i} className="bg-[#141414] rounded-xl p-6 border border-neutral-800">
-                <div className="flex items-center gap-1 mb-3">
+              <motion.div key={i} variants={fadeUp} className="bg-white rounded-xl p-6 border border-[#e4e4e7]">
+                <div className="flex gap-0.5 mb-3">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className={`w-3.5 h-3.5 ${j < t.rating ? 'fill-red-500 text-red-500' : 'text-neutral-700'}`} />
+                    <Star key={j} className={`w-3.5 h-3.5 ${j < t.rating ? 'fill-amber-400 text-amber-400' : 'text-[#e4e4e7]'}`} />
                   ))}
                 </div>
-                <p className="text-neutral-300 leading-relaxed mb-4">{t.text}</p>
+                <p className="text-[#3f3f46] leading-relaxed mb-4 text-sm">{t.text}</p>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-400 text-xs font-medium">
+                  <div className="w-8 h-8 rounded-full bg-[#f4f4f5] border border-[#e4e4e7] flex items-center justify-center text-[#71717a] text-xs font-semibold">
                     {t.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
-                    <p className="text-white text-sm font-medium">{t.name}</p>
-                    <p className="text-neutral-600 text-xs">{t.location}</p>
+                    <p className="text-[#0a0a0a] text-sm font-medium">{t.name}</p>
+                    <p className="text-[#a1a1aa] text-xs">{t.location}</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-20 bg-black">
-        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">Stay in the loop</h2>
-          <p className="text-neutral-400 mb-8">
+      {/* ── Newsletter ── */}
+      <section className="py-24 bg-[#0a0a0a]">
+        <motion.div
+          className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
+          <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">Stay in the loop</h2>
+          <p className="text-[#71717a] mb-8 text-sm">
             We send one email a week with new products and occasional deals. That's it.
           </p>
-          <form onSubmit={(e) => { e.preventDefault(); setEmail(''); alert('Thanks! You\'re signed up.'); }} className="flex gap-2 max-w-md mx-auto">
+          <form
+            onSubmit={e => { e.preventDefault(); setEmail(''); alert("Thanks! You're signed up."); }}
+            className="flex gap-2 max-w-md mx-auto"
+          >
             <input
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               placeholder="you@email.com"
-              className="flex-1 px-4 py-3 rounded-lg bg-neutral-900 border border-neutral-700 text-white placeholder-neutral-600 focus:outline-none focus:border-red-600 text-sm"
+              className="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/30 text-sm transition-colors"
             />
-            <button type="submit" className="bg-red-600 text-white px-5 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm whitespace-nowrap">
+            <button
+              type="submit"
+              className="bg-white text-[#0a0a0a] px-5 py-3 rounded-lg hover:bg-[#f0f0f0] transition-colors font-medium text-sm whitespace-nowrap"
+            >
               Subscribe
             </button>
           </form>
-        </div>
+        </motion.div>
       </section>
     </div>
   );

@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { Product } from './CartContext';
+import { useAuth } from './AuthContext';
+import { api } from '../utils/api';
 
 interface WishlistContextType {
   wishlist: Product[];
@@ -9,26 +11,55 @@ interface WishlistContextType {
   getWishlistCount: () => number;
 }
 
+const WISHLIST_STORAGE_KEY = 'vendr-wishlist';
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
+function loadWishlist(): Product[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = window.localStorage.getItem(WISHLIST_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function WishlistProvider({ children }: { children: ReactNode }) {
-  const [wishlist, setWishlist] = useState<Product[]>([]);
+  const { user } = useAuth();
+  const [wishlist, setWishlist] = useState<Product[]>(loadWishlist);
+  const skipSync = useRef(false);
+
+  // On login: load wishlist from server
+  useEffect(() => {
+    if (!user?.id) return;
+    skipSync.current = true;
+    api.get<{ items: Product[] }>('/api/wishlist')
+      .then(data => {
+        if (data.items.length > 0) setWishlist(data.items);
+      })
+      .catch(() => {})
+      .finally(() => { skipSync.current = false; });
+  }, [user?.id]);
+
+  // Persist locally and sync to server
+  useEffect(() => {
+    window.localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
+    if (user?.id && !skipSync.current) {
+      api.put('/api/wishlist', { items: wishlist }).catch(() => {});
+    }
+  }, [wishlist]);
 
   const addToWishlist = (product: Product) => {
-    setWishlist(current => {
-      if (current.find(item => item.id === product.id)) return current;
-      return [...current, product];
-    });
+    setWishlist(current =>
+      current.some(item => item.id === product.id) ? current : [...current, product]
+    );
   };
 
   const removeFromWishlist = (productId: number) => {
     setWishlist(current => current.filter(item => item.id !== productId));
   };
 
-  const isInWishlist = (productId: number) => {
-    return wishlist.some(item => item.id === productId);
-  };
-
+  const isInWishlist = (productId: number) => wishlist.some(item => item.id === productId);
   const getWishlistCount = () => wishlist.length;
 
   return (
@@ -40,8 +71,6 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
 export function useWishlist() {
   const context = useContext(WishlistContext);
-  if (context === undefined) {
-    throw new Error('useWishlist must be used within a WishlistProvider');
-  }
+  if (context === undefined) throw new Error('useWishlist must be used within a WishlistProvider');
   return context;
 }
