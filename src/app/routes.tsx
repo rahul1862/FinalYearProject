@@ -13,6 +13,8 @@ import { PricingChart } from "./pages/PricingChart";
 import { ComparisonChart } from "./pages/ComparisonChart";
 import { Wishlist } from "./pages/Wishlist";
 import { NotFound } from "./pages/NotFound";
+import { Login } from "./pages/Login";
+import { Register } from "./pages/Register";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +33,8 @@ export const router = createBrowserRouter([
       { path: "pricing", Component: PricingChart },
       { path: "comparison", Component: ComparisonChart },
       { path: "wishlist", Component: Wishlist },
+      { path: "login", Component: Login },
+      { path: "register", Component: Register },
       { path: "*", Component: NotFound },
     ],
   },
