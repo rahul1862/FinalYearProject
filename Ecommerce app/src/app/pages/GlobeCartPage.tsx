@@ -2,10 +2,10 @@ import { GCNavbar } from '../components/globecart/GCNavbar';
 import { HeroSection } from '../components/globecart/HeroSection';
 import { TrendingCountries } from '../components/globecart/TrendingCountries';
 import { LiveFeed } from '../components/globecart/LiveFeed';
-import { AISection } from '../components/globecart/AISection';
+import { RecommendationsSection } from '../components/globecart/RecommendationsSection';
 import { FeaturedProducts } from '../components/globecart/FeaturedProducts';
 import { GCFooter } from '../components/globecart/GCFooter';
-import { Chatbot } from '../components/Chatbot';
+import { SupportChat } from '../components/SupportChat';
 
 export function GlobeCartPage() {
   return (
@@ -32,8 +32,8 @@ export function GlobeCartPage() {
         <LiveFeed />
       </div>
 
-      <div id="ai-shop">
-        <AISection />
+      <div id="shop">
+        <RecommendationsSection />
       </div>
 
       <div id="featured">
@@ -41,7 +41,7 @@ export function GlobeCartPage() {
       </div>
 
       <GCFooter />
-      <Chatbot />
+      <SupportChat />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import {
   MessageCircle,
   X,
   Send,
-  Bot,
+  Headphones,
   User,
   ShoppingBag,
   HelpCircle,
@@ -15,7 +15,7 @@ type MessageType = 'text' | 'quick_reply' | 'product_recommendation';
 interface Message {
   id: string;
   text: string;
-  sender: 'user' | 'bot';
+  sender: 'user' | 'agent';
   timestamp: Date;
   type?: MessageType;
   options?: string[];
@@ -36,13 +36,13 @@ const formatTime = (date: Date) =>
 const initialMessage: Message = {
   id: createId(),
   text: 'Hi, welcome to Vendr. I can help with products, orders, sizing, returns, or support. What do you need?',
-  sender: 'bot',
+  sender: 'agent',
   timestamp: new Date(),
   type: 'quick_reply',
   options: ['Browse Products', 'Track Order', 'Customer Support', 'Size Guide'],
 };
 
-export function Chatbot() {
+export function SupportChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
   const [inputValue, setInputValue] = useState('');
@@ -83,7 +83,7 @@ export function Chatbot() {
           "A few popular options are below. I can narrow them down if you have a style or budget in mind.",
           "These are some common picks. I can make better suggestions if you tell me what you're looking for.",
         ]),
-        sender: "bot",
+        sender: "agent",
         timestamp: new Date(),
         type: "product_recommendation",
       };
@@ -95,7 +95,7 @@ export function Chatbot() {
           "No problem, I can look that up. What's your order number?",
           "Let's check that. Do you have your order number?",
         ]),
-        sender: "bot",
+        sender: "agent",
         timestamp: new Date(),
         type: "quick_reply",
         options: ["I have an order number", "How do I find my order number?"],
@@ -108,7 +108,7 @@ export function Chatbot() {
           "Sure, what do you need help with?",
           "I can help with that. What happened?",
         ]),
-        sender: "bot",
+        sender: "agent",
         timestamp: new Date(),
         type: "quick_reply",
         options: ["Return/Exchange", "Payment Issues", "Shipping Info", "Speak to Human"],
@@ -121,7 +121,7 @@ export function Chatbot() {
           "Sure. I can show the size guide or help you pick based on your measurements.",
           "I can help with sizing. Are you looking for a chart or a recommendation?",
         ]),
-        sender: "bot",
+        sender: "agent",
         timestamp: new Date(),
         type: "quick_reply",
         options: ["Show me the size guide", "How to measure", "Size recommendations"],
@@ -134,7 +134,7 @@ export function Chatbot() {
           "Most orders arrive in 3–5 business days. Express delivery is usually faster.",
           "Shipping depends on the option you choose. Standard is usually 3–5 days.",
         ]),
-        sender: "bot",
+        sender: "agent",
         timestamp: new Date(),
         type: "quick_reply",
         options: ["Calculate shipping", "International rates", "Express options"],
@@ -147,7 +147,7 @@ export function Chatbot() {
           "Returns are accepted within 30 days for unused items with tags. Do you want to start one?",
           "I can help with that. Is this for a return, exchange, or refund?",
         ]),
-        sender: "bot",
+        sender: "agent",
         timestamp: new Date(),
         type: "quick_reply",
         options: ["Start return process", "Return policy details", "Return shipping"],
@@ -161,7 +161,7 @@ export function Chatbot() {
         "I can help with that, but I need a little more detail.",
         "Could you give me a bit more information so I can point you in the right direction?",
       ]),
-      sender: "bot",
+      sender: "agent",
       timestamp: new Date(),
       type: "quick_reply",
       options: ["Browse Products", "Track Order", "Customer Support"],
@@ -209,7 +209,7 @@ export function Chatbot() {
         <div className="fixed bottom-24 right-6 bg-white rounded-xl shadow-lg border border-[#e4e4e7] p-4 max-w-xs z-40 animate-fade-in">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-[#0a0a0a] rounded-full flex items-center justify-center shrink-0">
-              <Bot className="w-5 h-5 text-white" />
+              <Headphones className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-[#0a0a0a] font-medium mb-1">Need help?</p>
@@ -265,7 +265,7 @@ export function Chatbot() {
           <div className="bg-[#0a0a0a] text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5" />
+                <Headphones className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-bold text-sm">Support</h3>
@@ -297,8 +297,8 @@ export function Chatbot() {
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    {message.sender === 'bot' ? (
-                      <Bot className="w-4 h-4 text-[#a1a1aa]" />
+                    {message.sender === 'agent' ? (
+                      <Headphones className="w-4 h-4 text-[#a1a1aa]" />
                     ) : (
                       <User className="w-4 h-4 text-white/60" />
                     )}

@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router';
 import { Header } from '../components/Header';
-import { Chatbot } from '../components/Chatbot';
+import { SupportChat } from '../components/SupportChat';
 import { Footer } from '../components/Footer';
 
 export function Root() {
@@ -14,7 +14,7 @@ export function Root() {
         <Outlet />
       </main>
       <Footer />
-      <Chatbot />
+      <SupportChat />
     </div>
   );
 }

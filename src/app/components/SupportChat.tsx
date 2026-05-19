@@ -1,22 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, ShoppingBag, HelpCircle, Phone, Mail } from 'lucide-react';
+import { MessageCircle, X, Send, Headphones, User, ShoppingBag, HelpCircle, Phone, Mail } from 'lucide-react';
 
 interface Message {
   id: string;
   text: string;
-  sender: 'user' | 'bot';
+  sender: 'user' | 'agent';
   timestamp: Date;
   type?: 'text' | 'quick_reply' | 'product_recommendation';
   options?: string[];
 }
 
-export function Chatbot() {
+export function SupportChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hi! 👋 Welcome to Vendr! I\'m your shopping assistant. How can I help you today?',
-      sender: 'bot',
+      text: 'Hi! 👋 Welcome to Vendr! How can I help you today?',
+      sender: 'agent',
       timestamp: new Date(),
       type: 'quick_reply',
       options: ['Browse Products', 'Track Order', 'Customer Support', 'Size Guide']
@@ -27,7 +27,6 @@ export function Chatbot() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Show welcome notification after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowNotification(true);
@@ -48,78 +47,71 @@ export function Chatbot() {
   const generateResponse = (userMessage: string): Message => {
     const message = userMessage.toLowerCase();
 
-    // Product recommendations
     if (message.includes('recommend') || message.includes('suggest') || message.includes('looking for')) {
       return {
         id: Date.now().toString(),
         text: 'Based on your interests, here are some popular items you might like:',
-        sender: 'bot',
+        sender: 'agent',
         timestamp: new Date(),
         type: 'product_recommendation'
       };
     }
 
-    // Order tracking
     if (message.includes('order') || message.includes('track') || message.includes('status')) {
       return {
         id: Date.now().toString(),
         text: 'I can help you track your order! Please provide your order number, and I\'ll check the status for you.',
-        sender: 'bot',
+        sender: 'agent',
         timestamp: new Date(),
         type: 'quick_reply',
         options: ['I have an order number', 'How do I find my order number?']
       };
     }
 
-    // Customer support
     if (message.includes('help') || message.includes('support') || message.includes('problem')) {
       return {
         id: Date.now().toString(),
         text: 'I\'m here to help! What specific assistance do you need?',
-        sender: 'bot',
+        sender: 'agent',
         timestamp: new Date(),
         type: 'quick_reply',
         options: ['Return/Exchange', 'Payment Issues', 'Shipping Info', 'Speak to Human']
       };
     }
 
-    // Size guide
     if (message.includes('size') || message.includes('fit') || message.includes('measurement')) {
       return {
         id: Date.now().toString(),
         text: 'Our size guide is designed to help you find the perfect fit. Check out our detailed size charts for each product category. Would you like me to show you how to measure yourself?',
-        sender: 'bot',
+        sender: 'agent',
         timestamp: new Date(),
         type: 'quick_reply',
         options: ['Show me the size guide', 'How to measure', 'Size recommendations']
       };
     }
 
-    // Shipping
     if (message.includes('shipping') || message.includes('delivery') || message.includes('when')) {
       return {
         id: Date.now().toString(),
         text: 'We offer fast, reliable shipping worldwide! Standard delivery takes 3-5 business days, express 1-2 days. Free shipping on orders over $100. International shipping available to 150+ countries.',
-        sender: 'bot',
+        sender: 'agent',
         timestamp: new Date(),
         type: 'quick_reply',
         options: ['Calculate shipping', 'International rates', 'Express options']
       };
     }
 
-    // Returns
     if (message.includes('return') || message.includes('exchange') || message.includes('refund')) {
       return {
         id: Date.now().toString(),
         text: 'We offer a 30-day return policy on all items. Items must be unused with original tags. Free return shipping for defective items. How can I help with your return?',
-        sender: 'bot',
+        sender: 'agent',
         timestamp: new Date(),
         type: 'quick_reply',
         options: ['Start return process', 'Return policy details', 'Return shipping']
       };
     }
 
-    // Default responses
     const defaultResponses = [
       'That\'s a great question! Let me help you with that.',
       'I\'d be happy to assist you with that.',
@@ -131,7 +123,7 @@ export function Chatbot() {
     return {
       id: Date.now().toString(),
       text: defaultResponses[Math.floor(Math.random() * defaultResponses.length)] + ' Could you please provide more details about what you\'re looking for?',
-      sender: 'bot',
+      sender: 'agent',
       timestamp: new Date(),
       type: 'quick_reply',
       options: ['Browse Products', 'Customer Support', 'Contact Us']
@@ -142,7 +134,6 @@ export function Chatbot() {
     const messageText = text || inputValue.trim();
     if (!messageText) return;
 
-    // Add user message with animation
     const userMessage: Message = {
       id: Date.now().toString(),
       text: messageText,
@@ -153,7 +144,6 @@ export function Chatbot() {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    // Visual feedback
     const button = document.activeElement as HTMLButtonElement;
     if (button) {
       button.style.transform = 'scale(0.95)';
@@ -164,10 +154,9 @@ export function Chatbot() {
 
     setIsTyping(true);
 
-    // Simulate bot response delay
     setTimeout(() => {
-      const botResponse = generateResponse(messageText);
-      setMessages(prev => [...prev, botResponse]);
+      const agentResponse = generateResponse(messageText);
+      setMessages(prev => [...prev, agentResponse]);
       setIsTyping(false);
     }, 1000 + Math.random() * 1000);
   };
@@ -190,7 +179,7 @@ export function Chatbot() {
         <div className="fixed bottom-24 right-6 bg-[#141414] rounded-xl shadow-lg border border-neutral-800 p-4 max-w-xs z-40 animate-fade-in">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <Bot className="w-5 h-5 text-white" />
+              <Headphones className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-white font-medium mb-1">Need help shopping?</p>
@@ -243,10 +232,10 @@ export function Chatbot() {
           <div className="bg-red-600 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5" />
+                <Headphones className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold">Vendr Assistant</h3>
+                <h3 className="font-bold">Vendr Support</h3>
                 <p className="text-xs text-red-200">Online now</p>
               </div>
             </div>
@@ -273,8 +262,8 @@ export function Chatbot() {
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    {message.sender === 'bot' ? (
-                      <Bot className="w-4 h-4 text-red-500" />
+                    {message.sender === 'agent' ? (
+                      <Headphones className="w-4 h-4 text-red-500" />
                     ) : (
                       <User className="w-4 h-4 text-white" />
                     )}
@@ -284,7 +273,6 @@ export function Chatbot() {
                   </div>
                   <p className="text-sm leading-relaxed">{message.text}</p>
 
-                  {/* Quick Reply Options */}
                   {message.type === 'quick_reply' && message.options && (
                     <div className="mt-3 space-y-2">
                       {message.options.map((option, index) => (
@@ -299,7 +287,6 @@ export function Chatbot() {
                     </div>
                   )}
 
-                  {/* Product Recommendations */}
                   {message.type === 'product_recommendation' && (
                     <div className="mt-3 space-y-2">
                       <div className="bg-white/10 rounded-lg p-3">
@@ -328,12 +315,11 @@ export function Chatbot() {
               </div>
             ))}
 
-            {/* Typing Indicator */}
             {isTyping && (
               <div className="flex justify-start">
                 <div className="bg-white/10 rounded-2xl px-4 py-3 max-w-[80%]">
                   <div className="flex items-center gap-2 mb-2">
-                    <Bot className="w-4 h-4 text-red-500" />
+                    <Headphones className="w-4 h-4 text-red-500" />
                     <span className="text-xs text-gray-500">Typing...</span>
                   </div>
                   <div className="flex space-x-1">
@@ -368,7 +354,6 @@ export function Chatbot() {
               </button>
             </div>
 
-            {/* Quick Actions */}
             <div className="flex gap-2 mt-3">
               <button
                 onClick={() => handleSendMessage('Help with order')}

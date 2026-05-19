@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Bot, ArrowRight, Star, TrendingUp } from 'lucide-react';
+import { Sparkles, Send, Compass, ArrowRight, Star, TrendingUp } from 'lucide-react';
 
 const SUGGESTIONS = [
   "What's trending in Japan right now?",
@@ -9,7 +9,7 @@ const SUGGESTIONS = [
   'Italian leather bags for travel',
 ];
 
-const AI_RESPONSES: Record<string, { text: string; cards: { flag: string; name: string; price: string; rating: number; color: string }[] }> = {
+const RESPONSES: Record<string, { text: string; cards: { flag: string; name: string; price: string; rating: number; color: string }[] }> = {
   default: {
     text: "Based on your browsing history and global trends, I've curated these picks for you. These are hot right now across our 195-country network.",
     cards: [
@@ -56,23 +56,23 @@ function RecommendCardEl({ card, index }: { card: RecommendCard; index: number }
   );
 }
 
-export function AISection() {
+export function RecommendationsSection() {
   const [input, setInput] = useState('');
   const [active, setActive] = useState(false);
-  const [aiText, setAiText] = useState('');
+  const [responseText, setResponseText] = useState('');
   const [cards, setCards] = useState<RecommendCard[]>([]);
-  const [typing, setTyping] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const triggerAI = (_query?: string, scrollAfter?: boolean) => {
-    const response = AI_RESPONSES.default;
+  const triggerRecommendations = (_query?: string, scrollAfter?: boolean) => {
+    const response = RESPONSES.default;
     setInput('');
-    setTyping(true);
+    setLoading(true);
     setCards([]);
-    setAiText('');
+    setResponseText('');
     setActive(true);
     setTimeout(() => {
-      setTyping(false);
-      setAiText(response.text);
+      setLoading(false);
+      setResponseText(response.text);
       setCards(response.cards);
       if (scrollAfter) {
         setTimeout(() => {
@@ -85,7 +85,7 @@ export function AISection() {
 
   const handleSend = () => {
     if (!input.trim()) return;
-    triggerAI(input);
+    triggerRecommendations(input);
   };
 
   return (
@@ -123,8 +123,8 @@ export function AISection() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6"
               style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa' }}
             >
-              <Bot className="w-3.5 h-3.5" />
-              AI-Powered Shopping
+              <Compass className="w-3.5 h-3.5" />
+              Smart Shopping
             </div>
 
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
@@ -135,7 +135,7 @@ export function AISection() {
             </h2>
 
             <p className="text-white/50 text-base leading-relaxed mb-8 max-w-md">
-              Our AI analyses 12 million products across 195 countries in real time to surface exactly what you'll love — before you even know you want it.
+              We analyse 12 million products across 195 countries in real time to surface exactly what you'll love — before you even know you want it.
             </p>
 
             {/* Feature pills */}
@@ -159,17 +159,17 @@ export function AISection() {
             <motion.button
               whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(139,92,246,0.4)' }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => triggerAI(undefined, true)}
+              onClick={() => triggerRecommendations(undefined, true)}
               className="flex items-center gap-3 px-8 py-4 rounded-2xl text-sm font-semibold text-white"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#ec4899)' }}
             >
               <Sparkles className="w-5 h-5" />
-              Get My AI Picks
+              Get My Picks
               <ArrowRight className="w-4 h-4" />
             </motion.button>
           </motion.div>
 
-          {/* Right: AI interface */}
+          {/* Right: interface */}
           <motion.div
             initial={{ x: 50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
@@ -185,7 +185,7 @@ export function AISection() {
                 boxShadow: '0 0 80px rgba(139,92,246,0.12)',
               }}
             >
-              {/* AI Chat header */}
+              {/* Chat header */}
               <div
                 className="px-6 py-5 flex items-center gap-4"
                 style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}
@@ -202,11 +202,11 @@ export function AISection() {
                     className="relative w-10 h-10 rounded-full flex items-center justify-center"
                     style={{ background: 'linear-gradient(135deg,#8b5cf6,#00d4ff)' }}
                   >
-                    <Bot className="w-5 h-5 text-white" />
+                    <Compass className="w-5 h-5 text-white" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">GlobeCart AI</div>
+                  <div className="text-sm font-bold text-white">GlobeCart</div>
                   <div className="text-xs text-white/40">Your personal global shopping guide</div>
                 </div>
                 <div
@@ -214,7 +214,7 @@ export function AISection() {
                   style={{ background: 'rgba(139,92,246,0.15)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.25)' }}
                 >
                   <TrendingUp className="w-3 h-3" />
-                  GPT-4o Powered
+                  195 Countries
                 </div>
               </div>
 
@@ -228,7 +228,7 @@ export function AISection() {
                       {SUGGESTIONS.map(s => (
                         <button
                           key={s}
-                          onClick={() => triggerAI(s)}
+                          onClick={() => triggerRecommendations(s)}
                           className="px-3 py-2 rounded-xl text-xs text-white/60 hover:text-white transition-colors duration-200"
                           style={{
                             background: 'rgba(255,255,255,0.04)',
@@ -242,11 +242,11 @@ export function AISection() {
                   </motion.div>
                 )}
 
-                {/* AI Typing indicator */}
+                {/* Loading indicator */}
                 <AnimatePresence>
-                  {typing && (
+                  {loading && (
                     <motion.div
-                      key="typing"
+                      key="loading"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
@@ -256,7 +256,7 @@ export function AISection() {
                         className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                         style={{ background: 'linear-gradient(135deg,#8b5cf6,#00d4ff)' }}
                       >
-                        <Bot className="w-4 h-4 text-white" />
+                        <Compass className="w-4 h-4 text-white" />
                       </div>
                       <div
                         className="px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1"
@@ -276,9 +276,9 @@ export function AISection() {
                   )}
                 </AnimatePresence>
 
-                {/* AI response text */}
+                {/* Response text */}
                 <AnimatePresence>
-                  {aiText && (
+                  {responseText && (
                     <motion.div
                       key="response"
                       initial={{ opacity: 0, y: 10 }}
@@ -290,13 +290,13 @@ export function AISection() {
                           className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                           style={{ background: 'linear-gradient(135deg,#8b5cf6,#00d4ff)' }}
                         >
-                          <Bot className="w-4 h-4 text-white" />
+                          <Compass className="w-4 h-4 text-white" />
                         </div>
                         <div
                           className="px-4 py-3 rounded-2xl rounded-tl-sm text-sm text-white/80 leading-relaxed"
                           style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}
                         >
-                          {aiText}
+                          {responseText}
                         </div>
                       </div>
                       {/* Recommendation cards */}
@@ -321,7 +321,7 @@ export function AISection() {
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSend()}
-                    placeholder="Ask the AI anything about global products..."
+                    placeholder="Search global products..."
                     className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
                   />
                   <motion.button
