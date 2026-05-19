@@ -12,9 +12,11 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const token = getToken();
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
